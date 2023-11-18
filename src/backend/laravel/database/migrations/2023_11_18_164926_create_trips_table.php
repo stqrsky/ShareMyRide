@@ -22,6 +22,7 @@ return new class extends Migration
             $table->string('destination_name')->nullable();
             $table->json('driver_location')->nullable();
             $table->timestamps();
+            
         });
     }
 
