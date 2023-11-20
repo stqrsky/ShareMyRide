@@ -25,9 +25,10 @@ class LoginController extends Controller
         }
 
         // send the user a one-time use code
-        $user->notify();
+        $user->notify(new LoginNeedsVerification());
 
         // return back a response
+        return response()->json(['message' => 'Text message notification sent.']);
 
     }
 }

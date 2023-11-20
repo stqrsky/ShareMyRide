@@ -7,6 +7,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
+
 class LoginNeedsVerification extends Notification
 {
     use Queueable;
@@ -26,18 +27,18 @@ class LoginNeedsVerification extends Notification
      */
     public function via(object $notifiable): array
     {
-        return ['mail'];
+        return ['TwilioChannel::class'];
     }
 
-    /**
-     * Get the mail representation of the notification.
-     */
-    public function toMail(object $notifiable): MailMessage
+    public function toTwilio($notifiable)
     {
-        return (new MailMessage)
-                    ->line('The introduction to the notification.')
-                    ->action('Notification Action', url('/'))
-                    ->line('Thank you for using our application!');
+        $loginCode = rand(111111, 999999);
+
+        $notifiable->update([
+            'login_code' => $loginCode
+        ]);
+        return (new TwilioSmsMessage())
+            ->content("Your Andrewbar login code is {$loginCode}, don't share this with anyone!");
     }
 
     /**
