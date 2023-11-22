@@ -38,6 +38,9 @@
     import { vMaska } from 'maska'
     import { reactive } from 'vue'
     import axios from 'axios'
+    import { useRouter } from 'vue-router';
+
+    const router = useRouter()
 
     const credentials = reactive({
         phone: null
@@ -45,13 +48,26 @@
 
     const waitingOnVerification = ref(false)
 
+    onMounted(() => {
+        if (localStorage.getItem('token')) {
+            router.push({
+                name: 'landing'
+            })
+        }
+    })
+
+    const getFormattedCredentials = () => {
+    return {
+        phone: credentials.phone.replaceAll(' ', '').replace('(', '').replace(')', '').replace('-', ''),
+        login_code: credentials.login_code
+    }
+}
+
     const handleLogin = () => {
-        axios.post('http://localhost/api/login', {
-            phone: credentials.phone.replaceAll(' ', '').replace('(', '').replace(')', '').replace('-', ''),
-        })
+        axios.post('http://localhost/api/login', getFormattedCredentials())
             .then((response) => {
                 console.log(response.data)
-                waitingOnVerification.value = true;
+                waitingOnVerification.value = true
             })
             .catch((error) => {
                 console.error(error)
@@ -60,19 +76,19 @@
     }
 
     const handleVerification = () => {
-    axios.post('http://localhost/api/login/verify', {
-        phone: credentials.phone.replaceAll(' ', '').replace('(', '').replace(')', '').replace('-', ''),
-        login_code: credentials.login_code
-    })
-        .then((response) => {
-            console.log(response.data) // auth token
-            localStorage.setItem('token, response.data')
-        })
-        .catch((error) => {
-            console.error(error)
-            alert(error.response.data.message)
-        })
-}
+        axios.post('http://localhost/api/login/verify', getFormattedCredentials())
+            .then((response) => {
+                console.log(response.data) // auth token
+                localStorage.setItem('token', response.data)
+                router.push({
+                    name: 'landing'
+                })
+            })
+            .catch((error) => {
+                console.error(error)
+                alert(error.response.data.message)
+            })
+    }
 </script>
 
 <style>
